@@ -47,7 +47,11 @@ const CreateEditUserDrawer: React.FC<Props> = ({
 
   useEffect(() => {
     if (isEdit) {
+      console.log("A");
+
       if (user) {
+        console.log("B");
+
         form.setFieldsValue({
           first_name: user.first_name ?? "",
           last_name: user.last_name ?? "",
@@ -56,12 +60,18 @@ const CreateEditUserDrawer: React.FC<Props> = ({
           job: user.job ?? "",
         });
       } else {
+        console.log("C");
+
         form.resetFields();
       }
     } else {
+      console.log("D");
+
       form.resetFields();
     }
     if (!open) {
+      console.log("E");
+
       form.resetFields();
     }
   }, [isEdit, user, form, open]);
