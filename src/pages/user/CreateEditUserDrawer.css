@@ -1,0 +1,25 @@
+.drawer-footer {
+    text-align: right;
+    padding: 12px 24px;
+    border-top: 1px solid #f0f0f0;
+    background: #fff;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.drawer-loading {
+    text-align: center;
+    padding: 48px 0;
+}
+
+.drawer-form {
+    padding-bottom: 40px;
+}
+
+.form-label {
+    color: rgba(0, 0, 0, 0.85);
+    display: inline-block;
+}

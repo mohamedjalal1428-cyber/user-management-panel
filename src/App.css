@@ -1,0 +1,68 @@
+/* simple resets */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: #eef2f5;
+}
+
+.ant-card {
+  border-radius: 8px;
+}
+
+.toggle-view-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toggle-btn {
+  border: 1px solid #d9d9d9;
+  background: white;
+  color: #444;
+  height: 34px;
+  border-radius: 0px;
+  padding: 0 14px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+}
+
+.toggle-btn.active {
+  border-color: #1890ff;
+  color: #1890ff;
+  background: #fff;
+  font-weight: 500;
+}
+
+.auth-page-wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2f5;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 460px;
+  border-radius: 8px;
+}
+
+.auth-title {
+  margin-bottom: 6px;
+}
+
+.auth-sub {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.auth-form {
+  margin-top: 20px;
+}

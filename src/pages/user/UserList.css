@@ -1,0 +1,32 @@
+.layout {
+    min-height: 100vh;
+}
+
+.layout-content {
+    padding: 24px;
+    background: #f3f5f7;
+}
+
+.layout-content-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.layout-body {
+    background: #fff;
+    border-radius: 6px;
+    padding: 16px;
+}
+
+.alignItems {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.toggle-conatiner {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding-bottom: 9px;
+}
