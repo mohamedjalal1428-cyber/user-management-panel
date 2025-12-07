@@ -61,12 +61,14 @@ export const authApi = api.injectEndpoints({
         method: "PUT",
         body,
       }),
-      invalidatesTags: (result, error, arg) => [{ type: "Users", id: arg.id }],
+      invalidatesTags: (_result, _error, arg) => [
+        { type: "Users", id: arg.id },
+      ],
     }),
 
     deleteUser: build.mutation<void, number>({
       query: (id) => ({ url: `/users/${id}`, method: "DELETE" }),
-      invalidatesTags: (result, error, id) => [
+      invalidatesTags: (_result, _error, id) => [
         { type: "Users", id },
         { type: "Users", id: "LIST" },
       ],
