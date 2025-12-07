@@ -11,7 +11,7 @@ import "./CreateEditUserDrawer.css";
 
 type Props = {
   open: boolean;
-  id?: number;
+  id?: number | string;
   onClose: () => void;
   onDone?: () => void;
 };
@@ -32,13 +32,14 @@ const CreateEditUserDrawer: React.FC<Props> = ({
   onDone,
 }) => {
   const [form] = Form.useForm();
-  const isEdit = typeof id === "number";
+  const numericId = typeof id === "string" ? Number(id) : id;
+  const isEdit = typeof numericId === "number" && !Number.isNaN(numericId);
 
   const {
     data: userData,
     isFetching: fetchingUser,
     isError: fetchError,
-  } = useGetUserQuery(id!, { skip: !isEdit });
+  } = useGetUserQuery(numericId as number, { skip: !isEdit });
 
   const user: ApiUser | null = isEdit ? userData?.data ?? null : null;
 
@@ -47,11 +48,7 @@ const CreateEditUserDrawer: React.FC<Props> = ({
 
   useEffect(() => {
     if (isEdit) {
-      console.log("A");
-
       if (user) {
-        console.log("B");
-
         form.setFieldsValue({
           first_name: user.first_name ?? "",
           last_name: user.last_name ?? "",
@@ -60,18 +57,12 @@ const CreateEditUserDrawer: React.FC<Props> = ({
           job: user.job ?? "",
         });
       } else {
-        console.log("C");
-
         form.resetFields();
       }
     } else {
-      console.log("D");
-
       form.resetFields();
     }
     if (!open) {
-      console.log("E");
-
       form.resetFields();
     }
   }, [isEdit, user, form, open]);
@@ -90,7 +81,7 @@ const CreateEditUserDrawer: React.FC<Props> = ({
         if (onDone) onDone();
       } else {
         const payload = {
-          id: id!,
+          id: numericId!,
           name: `${values.first_name ?? ""} ${values.last_name ?? ""}`.trim(),
           job: values.job ?? "Updated",
           email: values.email,
@@ -149,81 +140,92 @@ const CreateEditUserDrawer: React.FC<Props> = ({
         </div>
       }
     >
-      {loading ? (
-        <div className="drawer-loading">
+      {isEdit && fetchingUser ? (
+        <div
+          className="drawer-loading"
+          style={{ textAlign: "center", padding: 36 }}
+        >
           <Spin />
         </div>
       ) : fetchError && isEdit ? (
         <div style={{ padding: 12 }}>Failed to load user data.</div>
       ) : (
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleFinish}
-          preserve={false}
-          key={isEdit ? `edit_${user?.id ?? id}` : "create"}
-          initialValues={
-            isEdit && user
-              ? {
-                  first_name: user.first_name ?? "",
-                  last_name: user.last_name ?? "",
-                  email: user.email ?? "",
-                  avatar: user.avatar ?? "",
-                  job: user.job ?? "",
-                }
-              : {
-                  first_name: "",
-                  last_name: "",
-                  email: "",
-                  avatar: "",
-                  job: "",
-                }
-          }
-          className="drawer-form"
-        >
-          <Form.Item
-            label={<span className="form-label">First Name</span>}
-            name="first_name"
-            rules={[{ required: true, message: "Please enter first name" }]}
+        (!isEdit || user) && (
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handleFinish}
+            preserve={false}
+            key={isEdit ? `edit_${user?.id ?? numericId}` : "create"}
+            initialValues={
+              isEdit && user
+                ? {
+                    first_name: user.first_name ?? "",
+                    last_name: user.last_name ?? "",
+                    email: user.email ?? "",
+                    avatar: user.avatar ?? "",
+                    job: user.job ?? "",
+                  }
+                : {
+                    first_name: "",
+                    last_name: "",
+                    email: "",
+                    avatar: "",
+                    job: "",
+                  }
+            }
+            className="drawer-form"
           >
-            <Input placeholder="Please enter first name" />
-          </Form.Item>
+            <Form.Item
+              label={<span className="form-label">First Name</span>}
+              name="first_name"
+              rules={[{ required: true, message: "Please enter first name" }]}
+            >
+              <Input placeholder="Please enter first name" />
+            </Form.Item>
 
-          <Form.Item
-            label={<span className="form-label">Last Name</span>}
-            name="last_name"
-            rules={[{ required: true, message: "Please enter last name" }]}
-          >
-            <Input placeholder="Please enter last name" />
-          </Form.Item>
+            <Form.Item
+              label={<span className="form-label">Last Name</span>}
+              name="last_name"
+              rules={[{ required: true, message: "Please enter last name" }]}
+            >
+              <Input placeholder="Please enter last name" />
+            </Form.Item>
 
-          <Form.Item
-            label={<span className="form-label">Email</span>}
-            name="email"
-            rules={[
-              { required: true, message: "Please enter email" },
-              { type: "email", message: "Enter valid email" },
-            ]}
-          >
-            <Input placeholder="Please enter email" />
-          </Form.Item>
+            <Form.Item
+              label={<span className="form-label">Email</span>}
+              name="email"
+              rules={[
+                { required: true, message: "Please enter email" },
+                { type: "email", message: "Enter valid email" },
+              ]}
+            >
+              <Input placeholder="Please enter email" />
+            </Form.Item>
 
-          <Form.Item
-            label={<span className="form-label">Profile Image Link</span>}
-            name="avatar"
-            rules={[
-              { required: !isEdit, message: "Please enter profile image link" },
-            ]}
-          >
-            <Input placeholder="Please enter profile image link" />
-          </Form.Item>
+            <Form.Item
+              label={<span className="form-label">Profile Image Link</span>}
+              name="avatar"
+              rules={[
+                {
+                  required: !isEdit,
+                  message: "Please enter profile image link",
+                },
+              ]}
+            >
+              <Input placeholder="Please enter profile image link" />
+            </Form.Item>
 
-          <Form.Item name="job" label={<span className="form-label">Job</span>}>
-            <Input placeholder="Job (optional)" />
-          </Form.Item>
+            <Form.Item
+              name="job"
+              label={<span className="form-label">Job</span>}
+            >
+              <Input placeholder="Job (optional)" />
+            </Form.Item>
 
-          <div style={{ height: 24 }} />
-        </Form>
+            <div style={{ height: 24 }} />
+          </Form>
+        )
       )}
     </Drawer>
   );
