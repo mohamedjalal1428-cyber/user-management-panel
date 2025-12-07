@@ -66,7 +66,6 @@ const CreateEditUserDrawer: React.FC<Props> = ({
     <Drawer
       title={isEdit ? "Edit User" : "Create New User"}
       placement="right"
-      closeIcon={false}
       onClose={() => onClose()}
       open={open}
       size={520}

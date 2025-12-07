@@ -1,6 +1,19 @@
 import React, { useMemo, useState } from "react";
-import { Layout, Button, Space, Spin, Input, Typography, message } from "antd";
-import { TableOutlined, AppstoreOutlined } from "@ant-design/icons";
+import {
+  Layout,
+  Button,
+  Space,
+  Spin,
+  Input,
+  Typography,
+  message,
+  Modal,
+} from "antd";
+import {
+  TableOutlined,
+  AppstoreOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
 import UsersTable from "./UsersTable";
 import UserCardGrid from "./UserCardGrid";
 import PaginationControls from "./PaginationControls";
@@ -12,7 +25,7 @@ import {
 import "./UserList.css";
 const { Content } = Layout;
 const { Title } = Typography;
-
+const { confirm } = Modal;
 const UsersList: React.FC = () => {
   const [page, setPage] = useState<number>(1);
   const [viewMode, setViewMode] = useState<"table" | "card">("table");
@@ -48,7 +61,19 @@ const UsersList: React.FC = () => {
       message.error("Failed to delete user");
     }
   }
-
+  function showDeleteConfirm(id: number) {
+    confirm({
+      title: "Are you sure you want to delete this user?",
+      icon: <ExclamationCircleOutlined />,
+      content: "This action cannot be undone.",
+      okText: "Yes, Delete",
+      okType: "danger",
+      cancelText: "Cancel",
+      onOk() {
+        handleDelete(id);
+      },
+    });
+  }
   return (
     <Layout className="layout">
       <Content className="layout-content">
@@ -110,7 +135,7 @@ const UsersList: React.FC = () => {
                   setEditingUser(u.id);
                   setCreateModalOpen(true);
                 }}
-                onDelete={handleDelete}
+                onDelete={showDeleteConfirm}
               />
             ) : (
               <UserCardGrid
@@ -119,7 +144,7 @@ const UsersList: React.FC = () => {
                   setEditingUser(u.id);
                   setCreateModalOpen(true);
                 }}
-                onDelete={handleDelete}
+                onDelete={showDeleteConfirm}
                 isDeleting={isDeleting}
               />
             )}

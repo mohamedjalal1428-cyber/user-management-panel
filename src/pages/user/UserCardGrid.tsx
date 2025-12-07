@@ -1,14 +1,7 @@
 import React, { useState } from "react";
 import { Card, Avatar, Button, Row, Col } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  ExclamationCircleOutlined,
-} from "@ant-design/icons";
-import { Modal } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import "./userCard.css";
-
-const { confirm } = Modal;
 
 type User = {
   id: number;
@@ -34,20 +27,6 @@ const UserCardGrid: React.FC<Props> = ({
   isDeleting,
 }) => {
   const [hovered, setHovered] = useState<number | null>(null);
-
-  function showDeleteConfirm(id: number) {
-    confirm({
-      title: "Are you sure you want to delete this user?",
-      icon: <ExclamationCircleOutlined />,
-      content: "This action cannot be undone.",
-      okText: "Yes, Delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk() {
-        onDelete(id);
-      },
-    });
-  }
 
   return (
     <div className="card-grid-wrap">
@@ -88,7 +67,7 @@ const UserCardGrid: React.FC<Props> = ({
                       size="large"
                       icon={<DeleteOutlined />}
                       className="overlay-btn delete"
-                      onClick={() => showDeleteConfirm(u.id)}
+                      onClick={() => onDelete(u.id)}
                       loading={isDeleting}
                     />
                   </div>
