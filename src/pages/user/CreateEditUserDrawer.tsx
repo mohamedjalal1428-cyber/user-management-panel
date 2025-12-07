@@ -1,4 +1,5 @@
-import React from "react";
+// src/components/CreateEditUserDrawer.tsx
+import React, { useEffect } from "react";
 import { Drawer, Form, Input, Button, Space, message, Spin } from "antd";
 import {
   useCreateUserMutation,
@@ -15,6 +16,15 @@ type Props = {
   onDone?: () => void;
 };
 
+type ApiUser = {
+  id?: number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  avatar?: string;
+  job?: string;
+};
+
 const CreateEditUserDrawer: React.FC<Props> = ({
   open,
   id,
@@ -23,30 +33,58 @@ const CreateEditUserDrawer: React.FC<Props> = ({
 }) => {
   const [form] = Form.useForm();
   const isEdit = typeof id === "number";
-  const { data: userData, isFetching: fetchingUser } = useGetUserQuery(id!, {
-    skip: !isEdit,
-  });
 
-  const user = isEdit ? userData?.data : null;
+  const {
+    data: userData,
+    isFetching: fetchingUser,
+    isError: fetchError,
+  } = useGetUserQuery(id!, { skip: !isEdit });
+
+  const user: ApiUser | null = isEdit ? userData?.data ?? null : null;
 
   const [createUser, { isLoading: creating }] = useCreateUserMutation();
   const [updateUser, { isLoading: updating }] = useUpdateUserMutation();
+
+  useEffect(() => {
+    if (isEdit) {
+      if (user) {
+        form.setFieldsValue({
+          first_name: user.first_name ?? "",
+          last_name: user.last_name ?? "",
+          email: user.email ?? "",
+          avatar: user.avatar ?? "",
+          job: user.job ?? "",
+        });
+      } else {
+        form.resetFields();
+      }
+    } else {
+      form.resetFields();
+    }
+    if (!open) {
+      form.resetFields();
+    }
+  }, [isEdit, user, form, open]);
 
   async function handleFinish(values: any) {
     try {
       if (!isEdit) {
         const payload = {
-          name: `${values.first_name} ${values.last_name}`,
+          name: `${values.first_name ?? ""} ${values.last_name ?? ""}`.trim(),
           job: values.job ?? "New User",
+          email: values.email,
+          avatar: values.avatar,
         };
-        await createUser(payload).unwrap();
+        await createUser(payload as any).unwrap();
         message.success("User created");
         if (onDone) onDone();
       } else {
         const payload = {
           id: id!,
-          name: `${values.first_name} ${values.last_name}`,
+          name: `${values.first_name ?? ""} ${values.last_name ?? ""}`.trim(),
           job: values.job ?? "Updated",
+          email: values.email,
+          avatar: values.avatar,
         };
         await updateUser(payload as any).unwrap();
         message.success("User updated");
@@ -56,7 +94,11 @@ const CreateEditUserDrawer: React.FC<Props> = ({
       onClose();
     } catch (err: any) {
       console.error(err);
-      message.error(err?.data?.error || "Operation failed");
+      const errMsg =
+        (err?.data && (err.data as any).error) ||
+        err?.message ||
+        "Operation failed";
+      message.error(errMsg);
     }
   }
 
@@ -66,7 +108,10 @@ const CreateEditUserDrawer: React.FC<Props> = ({
     <Drawer
       title={isEdit ? "Edit User" : "Create New User"}
       placement="right"
-      onClose={() => onClose()}
+      onClose={() => {
+        form.resetFields();
+        onClose();
+      }}
       open={open}
       size={520}
       destroyOnHidden
@@ -98,26 +143,30 @@ const CreateEditUserDrawer: React.FC<Props> = ({
         <div className="drawer-loading">
           <Spin />
         </div>
+      ) : fetchError && isEdit ? (
+        <div style={{ padding: 12 }}>Failed to load user data.</div>
       ) : (
         <Form
           form={form}
           layout="vertical"
           onFinish={handleFinish}
           preserve={false}
-          key={isEdit ? `edit_${user?.id}` : "create"}
+          key={isEdit ? `edit_${user?.id ?? id}` : "create"}
           initialValues={
             isEdit && user
               ? {
-                  first_name: user.first_name,
-                  last_name: user.last_name,
-                  email: user.email,
-                  avatar: user.avatar,
+                  first_name: user.first_name ?? "",
+                  last_name: user.last_name ?? "",
+                  email: user.email ?? "",
+                  avatar: user.avatar ?? "",
+                  job: user.job ?? "",
                 }
               : {
                   first_name: "",
                   last_name: "",
                   email: "",
                   avatar: "",
+                  job: "",
                 }
           }
           className="drawer-form"
